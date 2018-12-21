@@ -18,7 +18,7 @@ def darknet():
         accuracy = int(lines[-2].split(': ')[-1].strip('%'))
         return accuracy
                    
-# Alarm @Raspberrypi
+# Alart @Raspberrypi
 def request():
 
     Host = '<address>'
