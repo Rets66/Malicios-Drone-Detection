@@ -4,7 +4,7 @@
 import glob
 import os
 from paramiko import SSHClient, AutoAddPolicy
-import sys
+import subprocess
 
 # Execution darknet
 def darknet():
