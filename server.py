@@ -8,8 +8,8 @@ import subprocess
 
 target = ''
 def load_file():
-    path = os.listdir("/home/iplab/Projects/PBLDrone/detected/*.jpg")
-    target = sort([i for i in path if os.lsfile(i)], key=os.path.getmtime)[0]
+    path = "/home/iplab/Projects/PBLDrone/detected/"
+    target = sort([i for i in os.listdir(path) if "jpg" in  i], key=os.path.getmtime)[0]
     return target
 
 accuracy = ''
