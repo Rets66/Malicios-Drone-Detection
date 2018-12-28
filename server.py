@@ -9,7 +9,7 @@ import subprocess
 target = ''
 def load_file():
     path = "/home/iplab/Projects/PBLDrone/detected/"
-    target = sort([i for i in os.listdir(path) if "jpg" in  i], key=os.path.getmtime)[0]
+    target = sorted([i for i in os.listdir(path) if "jpg" in  i], key=os.path.getmtime)[0]
     return target
 
 accuracy = ''
