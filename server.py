@@ -21,12 +21,12 @@ def get_accuracy(target):
     # Classifing Drone
     decode_lines = result.stdout.decode('utf-8')
     lines = decode_lines.split('\n')
-    if 'drone' in lines:
+    if 'drone' not in lines:
+        continue
+    else:
         accuracy = int(lines[-3].split(': ')[-1].strip('%'))
         return accuracy
-    else:
-        print("Can't find drones")
-                       
+
 # @Raspberrypi
 def connect_pi():
     """
@@ -53,10 +53,10 @@ def main():
     while True:
         target = load_file()
         accuracy = get_accuracy(target)
-        if accuracy > 60:
-            connect_pi()
+        if accuracy < 60:
+            continue
         else:
-            pass
+            connect_pi()
 
 if __name__ == "__main__":
     main()
