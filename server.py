@@ -2,30 +2,52 @@
 # coding:utf-8
 
 from glob import glob
-from os import path
+import os
 from paramiko import SSHClient, AutoAddPolicy
 import subprocess
+import shutil
+
+# Save prediction image to Prediction Folder
+def save_predictions(file):
+    target_dir = '/home/iplab/Predictions'
+    src = '/home/iplab/darknet/predictions.jpg'
+    file_name = os.path.basename(file)
+
+    if not os.path.exists(target_dir):
+        os.mkdir(target_dir)
+    dst = '{}/pre_{}'.format(target_dir,file_name)
+    shutil.copyfile(src, dst)
 
 target = ''
 def load_file():
     path = "/home/iplab/Projects/PBLDrone/detected/"
-    target = sorted([i for i in os.listdir(path) if "jpg" in  i], key=os.path.getmtime)[-1]
+    file_list = [i for i in os.listdir(path) if "jpg" in i]
+    target = sorted(file_list)[-1]
     return target
 
 accuracy = ''
 def get_accuracy(target):
-    result = subprocess.run(["/home/darknet/darknet", "detector", "test",\
-                            "cfg/pbldrone.data", "cfg/yolo-pbldrone.cfg",\
-                            "yolo-pbldrone_1200.backup", file], capture_output=True)
+    result = subprocess.run(["/home/iplab/darknet/darknet", "detector",\
+                            "test", "/home/iplab/darknet/cfg/pbldrone.data",\
+                            "/home/iplab/darknet/cfg/yolo-pbldrone.cfg",\
+                            "/home/iplab/darknet/yolo-pbldrone_1200.backup",\
+                            target], stdout=subprocess.PIPE)
+
+	# Save prediction image to Prediction Folder
+    # save_predictions(target)
 
     # Classifing Drone
     decode_lines = result.stdout.decode('utf-8')
     lines = decode_lines.split('\n')
-    if 'drone' not in lines:
-        continue
-    else:
+    if 'drone' in lines:
         accuracy = int(lines[-3].split(': ')[-1].strip('%'))
         return accuracy
+		#    if 'drone' not in lines:
+		#    	continue
+		#    else:
+		#        accuracy = int(lines[-3].split(': ')[-1].strip('%'))
+		#        return accuracy
+
 
 # @Raspberrypi
 def connect_pi():
@@ -34,10 +56,10 @@ def connect_pi():
     80% is a temporary proportion.
     """
 
-    Host = '<address>'
+    Host = '163.221.52.134'
     Port = 22
-    User = '<name>'
-    Pass = '<your-pass>'
+    User = 'pi'
+    Pass = 'raspberry'
 
     # Connect
     with SSHClient() as c:
@@ -53,6 +75,7 @@ def main():
     while True:
         target = load_file()
         accuracy = get_accuracy(target)
+        print(accuracy)
         if accuracy < 60:
             continue
         else:
