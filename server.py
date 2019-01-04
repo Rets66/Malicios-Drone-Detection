@@ -20,35 +20,31 @@ def save_predictions(file):
 
 target = ''
 def load_file():
-    path = "/home/iplab/Projects/PBLDrone/detected/"
+    path = "/home/iplab/test_images/"
+    #path = "/home/iplab/Projects/PBLDrone/detected/"
     file_list = [i for i in os.listdir(path) if "jpg" in i]
-    target = sorted(file_list)[-1]
+    target = path + sorted(file_list)[-1]
     return target
 
-accuracy = ''
+accuracy = 0
 def get_accuracy(target):
-    result = subprocess.run(["/home/iplab/darknet/darknet", "detector",\
-                            "test", "/home/iplab/darknet/cfg/pbldrone.data",\
-                            "/home/iplab/darknet/cfg/yolo-pbldrone.cfg",\
-                            "/home/iplab/darknet/yolo-pbldrone_1200.backup",\
-                            target], stdout=subprocess.PIPE)
+    command = ["/home/iplab/darknet/darknet", "detector",\
+              "test", "/home/iplab/darknet/cfg/pbldrone.data",\
+              "/home/iplab/darknet/cfg/yolo-pbldrone.cfg",\
+              "/home/iplab/darknet/yolo-pbldrone_1200.weights"]
+    command.append(target)    
+    result = subprocess.run(command, stdout=subprocess.PIPE)
 
-	# Save prediction image to Prediction Folder
-    # save_predictions(target)
+    # Save prediction image to Prediction Folder
+    save_predictions(target)
 
     # Classifing Drone
     decode_lines = result.stdout.decode('utf-8')
     lines = decode_lines.split('\n')
     if 'drone' in lines:
-        accuracy = int(lines[-3].split(': ')[-1].strip('%'))
+        accuracy = int(lines[-1].split(': ')[-1].strip('%'))
         return accuracy
-		#    if 'drone' not in lines:
-		#    	continue
-		#    else:
-		#        accuracy = int(lines[-3].split(': ')[-1].strip('%'))
-		#        return accuracy
-
-
+		
 # @Raspberrypi
 def connect_pi():
     """
@@ -56,10 +52,10 @@ def connect_pi():
     80% is a temporary proportion.
     """
 
-    Host = '163.221.52.134'
-    Port = 22
-    User = 'pi'
-    Pass = 'raspberry'
+    Host = ''
+    Port = 
+    User = ''
+    Pass = ''
 
     # Connect
     with SSHClient() as c:
@@ -75,11 +71,13 @@ def main():
     while True:
         target = load_file()
         accuracy = get_accuracy(target)
-        print(accuracy)
-        if accuracy < 60:
-            continue
+        if accuracy is not None:
+            if accuracy < 60:
+                continue
+            else:
+                connect_pi()
         else:
-            connect_pi()
+            print("Drone not detected")
 
 if __name__ == "__main__":
     main()
